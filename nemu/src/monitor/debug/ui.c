@@ -41,7 +41,7 @@ static int cmd_help(char *args);
 static int cmd_si(char *args) {
 	char *arg = strtok(NULL, " ");
 	
-	printf("%s\n", args);
+	printf("%s\n", arg);
 //	cpu_exec();
 	return 0;
 }
