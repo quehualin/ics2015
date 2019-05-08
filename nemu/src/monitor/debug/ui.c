@@ -40,9 +40,11 @@ static int cmd_help(char *args);
 
 static int cmd_si(char *args) {
 	char *arg = strtok(NULL, " ");
-	
-	printf("%s\n", arg);
-//	cpu_exec();
+	int stepCount = 0;
+	if(arg != NULL){
+		stepCount = (int)*arg;
+	}
+	cpu_exec(stepCount);
 	return 0;
 }
 
