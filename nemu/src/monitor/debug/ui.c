@@ -44,6 +44,7 @@ static int cmd_si(char *args) {
 	if(arg != NULL){
 		stepCount = (int)*arg;
 	}
+	printf("xxx %d", stepCount);
 	cpu_exec(stepCount);
 	return 0;
 }
