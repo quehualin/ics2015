@@ -54,6 +54,15 @@ static int cmd_info(char *args){
 	return 0;
 }
 
+static int cmd_p(char *args){
+	if(args == NULL){
+		printf("invalid expression");	
+		return 0;
+	}	
+
+	return 0;
+}
+
 static struct {
 	char *name;
 	char *description;
@@ -64,6 +73,7 @@ static struct {
 	{ "q", "Exit NEMU", cmd_q },
 	{ "si", "Run single instruction", cmd_si },
 	{ "info", "Show information of [r]egister or [w]atchpoint or [s]ymbol or [c]ache or [t]lb", cmd_info},
+	{ "p", "print value of expression (',' to split multiple expressions)", cmd_p},
 
 	/* TODO: Add more commands */
 
