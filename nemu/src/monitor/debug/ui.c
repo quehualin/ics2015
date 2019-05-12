@@ -39,12 +39,12 @@ static int cmd_q(char *args) {
 static int cmd_help(char *args);
 
 static int cmd_si(char *args) {
-	char *arg = strtok(NULL, " ");
 	int stepCount = 1;
-	if(arg != NULL){
-		stepCount = (int)*arg;
+	if(args){
+		if(sscanf(args, "%d", &stepCount)!= 1){
+			stepCount = 1;
+		}
 	}
-	printf("xxx %d", stepCount);
 	cpu_exec(stepCount);
 	return 0;
 }
@@ -57,7 +57,7 @@ static struct {
 	{ "help", "Display informations about all supported commands", cmd_help },
 	{ "c", "Continue the execution of the program", cmd_c },
 	{ "q", "Exit NEMU", cmd_q },
-	{ "si", "Exit NEMU", cmd_si },
+	{ "si", "Run single instruction", cmd_si },
 
 	/* TODO: Add more commands */
 
