@@ -75,6 +75,15 @@ static int cmd_info(char *args) {
 	return 0;
 }
 
+static int cmd_p(char *args){
+	if (!args){
+		printf("p SUBCMD: no expresssions specified\n");
+		return 1;
+	}
+	printf("expression is %s\n", args);
+	return 0;
+}
+
 static struct {
 	char *name;
 	char *description;
@@ -86,6 +95,7 @@ static struct {
 	{ "si", "Run program util next instruction", cmd_si },
 	{ "info", "Show information of [r]egister or [w]atchpoint or [s]ymbol or [c]ache or [t]lb", cmd_info },
 
+	{ "p", "Print value of an expression(','to split multiple expressions", cmd_p },
 	/* TODO: Add more commands */
 
 };
