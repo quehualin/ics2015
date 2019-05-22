@@ -9,6 +9,7 @@
 
 void cpu_exec(uint32_t);
 
+
 /* We use the ``readline'' library to provide more flexibility to read from stdin. */
 char* rl_gets() {
 	static char *line_read = NULL;
@@ -35,6 +36,36 @@ static int cmd_c(char *args) {
 static int cmd_q(char *args) {
 	return -1;
 }
+static int cmd_help(char*);
+
+static int cmd_si(char *args) {
+	int step = 1;
+	if (args || sscanf(args, "%d", &step));
+	printf("single step %d\n", step);
+	return 0;
+}
+
+static int cmd_info(char *args) {
+	return 0;
+}
+
+
+static struct {
+	char *name;
+	char *description;
+	int (*handler) (char *);
+} cmd_table [] = {
+	{ "help", "Display informations about all supported commands", cmd_help },
+	{ "c", "Continue the execution of the program", cmd_c },
+	{ "q", "Exit NEMU", cmd_q },
+	{ "si", "Exit NEMU", cmd_si },
+	{ "info", "Exit NEMU", cmd_info },
+
+	/* TODO: Add more commands */
+
+};
+
+#define NR_CMD (sizeof(cmd_table) / sizeof(cmd_table[0]))
 
 static int cmd_help(char *args) {
 	/* extract the first argument */
@@ -59,34 +90,6 @@ static int cmd_help(char *args) {
 	}
 	return 0;
 }
-
-static int cmd_si(char *args) {
-	int step = 1;
-	if (args || sscanf(args, "%d", step));
-	printf("single step %d\n", step);
-}
-
-static int cmd_info(char *args) {
-
-}
-
-static struct {
-	char *name;
-	char *description;
-	int (*handler) (char *);
-} cmd_table [] = {
-	{ "help", "Display informations about all supported commands", cmd_help },
-	{ "c", "Continue the execution of the program", cmd_c },
-	{ "q", "Exit NEMU", cmd_q },
-	{ "si", "Exit NEMU", cmd_si },
-	{ "info", "Exit NEMU", cmd_info },
-
-	/* TODO: Add more commands */
-
-};
-
-#define NR_CMD (sizeof(cmd_table) / sizeof(cmd_table[0]))
-
 
 void ui_mainloop() {
 	while(1) {
