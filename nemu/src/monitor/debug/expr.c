@@ -42,7 +42,7 @@ static struct rule {
 	{"\\(", LP},						//lp 
 	{"\\)", RP},						//rp 
 
-	{"\%d+", NUM}					// number
+	{"\\%d+", NUM}					// number
 };
 
 #define NR_REGEX (sizeof(rules) / sizeof(rules[0]) )
