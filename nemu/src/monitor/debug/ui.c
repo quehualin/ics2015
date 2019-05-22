@@ -41,14 +41,13 @@ static int cmd_help(char*);
 static int cmd_si(char *args) {
 	int step = 1;
 	if (args && sscanf(args, "%d", &step));
-	printf("single step %d\n", step);
 	cpu_exec(step);
 	return 0;
 }
 
 static int cmd_info(char *args) {
 	for(int i = 0; i < 8; i++){
-		printf("%s:\t,%d\n", regsl[i],cpu.gpr[i]._32);
+		printf("%s:\t%d\n", regsl[i],cpu.gpr[i]._32);
 	}
 	return 0;
 }
