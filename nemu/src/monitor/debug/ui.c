@@ -81,6 +81,8 @@ static int cmd_p(char *args){
 		return 1;
 	}
 	printf("expression is %s\n", args);
+	bool success = true;
+	expr(args, &success);
 	return 0;
 }
 
