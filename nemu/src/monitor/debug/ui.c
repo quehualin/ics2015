@@ -47,6 +47,9 @@ static int cmd_si(char *args) {
 }
 
 static int cmd_info(char *args) {
+	for(int i = 0; i < 8; i++){
+		printf("%s\t", regsl[i]);
+	}
 	return 0;
 }
 
