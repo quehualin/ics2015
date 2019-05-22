@@ -25,7 +25,7 @@ static struct rule {
 	{" +",	NOTYPE},				// spaces
 	{"\\+", '+'},					// plus
 	{"==", EQ},						// equal
-	{"%d+", NUM}					// number
+	{"[0-9]+", NUM}					// number
 };
 
 #define NR_REGEX (sizeof(rules) / sizeof(rules[0]) )
