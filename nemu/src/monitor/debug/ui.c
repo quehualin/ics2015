@@ -42,6 +42,7 @@ static int cmd_si(char *args) {
 	int step = 1;
 	if (args && sscanf(args, "%d", &step));
 	printf("single step %d\n", step);
+	cpu_exec(step);
 	return 0;
 }
 
@@ -58,8 +59,8 @@ static struct {
 	{ "help", "Display informations about all supported commands", cmd_help },
 	{ "c", "Continue the execution of the program", cmd_c },
 	{ "q", "Exit NEMU", cmd_q },
-	{ "si", "Exit NEMU", cmd_si },
-	{ "info", "Exit NEMU", cmd_info },
+	{ "si", "Run program util next instruction", cmd_si },
+	{ "info", "Show information of [r]egister or [w]atchpoint or [s]ymbol or [c]ache or [t]lb", cmd_info },
 
 	/* TODO: Add more commands */
 
