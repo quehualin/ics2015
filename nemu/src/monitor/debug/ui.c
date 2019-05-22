@@ -40,11 +40,8 @@ static int cmd_help(char*);
 
 static int cmd_si(char *args) {
 	int step = 1;
-	int res = 0;
-	if (args && sscanf(args, "%d", &res)){
-		step = res;
-	}
-	printf("single step %d, %d\n", step, res);
+	if (args && sscanf(args, "%d", &step));
+	printf("single step %d\n", step);
 	return 0;
 }
 
