@@ -72,7 +72,7 @@ static int cmd_help(char *args) {
 	/* extract the first argument */
 	char *arg = strtok(NULL, " ");
 	int i;
-	printf("%s\n", arg);
+	printf("xxxxxxxxxxxxxx %s\n", arg);
 
 	if(arg == NULL) {
 		/* no argument given */
