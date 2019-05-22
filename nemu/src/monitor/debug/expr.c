@@ -7,10 +7,19 @@
 #include <regex.h>
 
 enum {
-	NOTYPE = 256, EQ,NUM
+	NOTYPE = 256, 
+	EQ,
+	ADD,
+	SUB,
+	MUL,
+	DIV,
+	MOD,
+	LP,
+	RP,
 
-	/* TODO: Add more token types */
+	NUM,
 
+	UNKNOWN_TOKEN
 };
 
 static struct rule {
@@ -23,9 +32,17 @@ static struct rule {
 	 */
 
 	{" +",	NOTYPE},				// spaces
-	{"\\+", '+'},					// plus
 	{"==", EQ},						// equal
-	{"[0-9]+", NUM}					// number
+
+	{"\\+", ADD},					// add
+	{"-", SUB},						//sub 
+	{"\\*", MUL},						//mul 
+	{"/", DIV},						//div 
+	{"%", MOD},						//mod 
+	{"\\(", LP},						//lp 
+	{"\\)", RP},						//rp 
+
+	{"\%d+", NUM}					// number
 };
 
 #define NR_REGEX (sizeof(rules) / sizeof(rules[0]) )
@@ -79,8 +96,10 @@ static bool make_token(char *e) {
 				 * types of tokens, some extra actions should be performed.
 				 */
 
-				switch(rules[i].token_type) {
-					default: panic("please implement me");
+				int tt = rules[i].token_type;
+				//if (tt == NOTYPE) break;
+				if (tt == UNKNOWN_TOKEN){
+					printf("unknow token: %.*s\n", substr_len, substr_start);
 				}
 
 				break;
