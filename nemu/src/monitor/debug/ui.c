@@ -45,13 +45,35 @@ static int cmd_si(char *args) {
 	return 0;
 }
 
-static int cmd_info(char *args) {
+void print_registers(){
 	for(int i = 0; i < 8; i++){
 		printf("%s:\t0x%x\n", regsl[i],cpu.gpr[i]._32);
 	}
-	return 0;
 }
 
+static int cmd_info(char *args) {
+	if (!args || ( *args != 'r' && *args != 'w' && *args != 's' && *args != 'c' && *args != 't')){
+		printf("info SUBCMD: no subcmd specified\n");
+		return 1;
+	}
+
+	switch(*args) {
+		case 'r':
+			print_registers();
+			break;
+		case 'w':
+			//TODO
+			break;
+		case 's':
+			//TODO
+			break;
+		case 'c':
+			//TODO
+			break;
+	}
+
+	return 0;
+}
 
 static struct {
 	char *name;
