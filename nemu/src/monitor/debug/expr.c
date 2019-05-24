@@ -140,7 +140,7 @@ uint32_t expr(char *e, bool *success)
 	for (size_t i = 0; i < nr_token; i++)
 	{
 		Token t = tokens[i];
-		printf("type : %s,\tvalue: %s\n", t.type, t.str);
+		printf("type : %d,\tvalue: %s\n", t.type, t.str);
 	}
 	
 	return 0;
