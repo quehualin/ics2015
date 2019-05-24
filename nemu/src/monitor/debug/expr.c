@@ -10,6 +10,7 @@ enum
 {
 	NOTYPE = 256,
 	EQ,
+	NEQ,
 	ADD,
 	SUB,
 	MUL,
@@ -30,6 +31,7 @@ static struct rule
 } rules[] = {
 	{" +", NOTYPE}, // spaces
 	{"==", EQ},		// equal
+	{"!=", EQ},		// equal
 
 	{"\\+", ADD}, // add
 	{"-", SUB},   //sub
@@ -127,6 +129,56 @@ static bool make_token(char *e)
 	return true;
 }
 
+static bool check_parentheses(int l, int r)
+{
+	if (tokens[l].str != '(' || tokens[r].str != ')') return false;
+	int i, lc = 0, rc = 0;
+	for ( i = l + 1; i < r; i++)
+	{
+		if (token[i].type == '(') lc++;
+		if (token[i].type == ')') rc++;
+		if (rc > lc) return false;
+	}
+	if (lc == rc)
+		return true;
+	return false;			
+}
+
+int dominant_operator(int l, int r) {
+	int i,j;
+	
+}
+
+// <expr> ::= <number>        # 一个数是表达式
+//     | "(" <expr> ")"    # 在表达式两边加个括号也是表达式
+//     | <expr> "+" <expr>    # 两个表达式相加也是表达式
+//     | <expr> "-" <expr>    # 接下来你全懂了
+//     | <expr> "*" <expr>
+//     | <expr> "/" <expr>
+//求值
+static uint32_t eval(int l, int r)
+{
+	uint32_t num = 0;
+	if (l > r)
+	{
+		Assert(true, "bad expression");
+		/* bad expression */
+	}
+	else if (l == r)
+	{
+		sscanf(tokens[l].str, "%d", &num);
+		return num;
+	}
+	else if (check_parentheses(l, r))
+	{
+		return eval(l + 1, r - 1);
+	}
+	else
+	{
+
+	}
+}
+
 uint32_t expr(char *e, bool *success)
 {
 	if (!make_token(e))
@@ -140,8 +192,8 @@ uint32_t expr(char *e, bool *success)
 	for (size_t i = 0; i < nr_token; i++)
 	{
 		Token t = tokens[i];
-		printf("type : %s,\tvalue: %s\n", t.type, t.str);
+		printf("type : %d,\tvalue: %s\n", t.type, t.str);
 	}
-	
+
 	return 0;
 }
