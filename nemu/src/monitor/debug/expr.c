@@ -139,20 +139,14 @@ int dominant_operator(int l, int r) {
 	if (l > r) assert(0);
 	int op = l;
 	int max_priority = -1;
-	bool isInP = false;
+	int lc = 0, rc = 0;
 	while (l < r)
 	{
-		if (isInP || tokens[l].token_type == '('){
-			isInP = true;
-			continue;
-		}
-		if (tokens[l].token_type == ')'){
-			isInP = false;
-			continue;
-		}
+		if(tokens[l].token_type == '(')lc++;
+		if(tokens[l].token_type == ')')rc++;
 
 		int priority = tokens[l].priority;
-		if (max_priority <= priority)
+		if (priority >= max_priority)
 		{
 			max_priority = priority;
 			op = l;
