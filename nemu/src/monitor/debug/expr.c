@@ -142,7 +142,7 @@ int dominant_operator(int l, int r) {
 	while (l < r)
 	{
 		int priority = tokens[l++].priority;
-		if (max_priority >= priority)
+		if (max_priority <= priority)
 		{
 			max_priority = priority;
 		}
@@ -181,7 +181,7 @@ static uint32_t eval(int l, int r)
 	}
 	return 0;
 }
-
+// make_tokenxx
 uint32_t expr(char *e, bool *success)
 {
 	if (!make_token(e))
