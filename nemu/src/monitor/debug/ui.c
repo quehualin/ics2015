@@ -9,6 +9,7 @@
 
 void cpu_exec(uint32_t);
 
+
 /* We use the ``readline'' library to provide more flexibility to read from stdin. */
 char* rl_gets() {
 	static char *line_read = NULL;
@@ -35,8 +36,7 @@ static int cmd_c(char *args) {
 static int cmd_q(char *args) {
 	return -1;
 }
-
-static int cmd_help(char *args);
+static int cmd_help(char*);
 
 static int cmd_si(char *args) {
 	int stepCount = 1;
@@ -49,8 +49,32 @@ static int cmd_si(char *args) {
 	return 0;
 }
 
-static int cmd_info(char *args){
+void print_registers(){
+	for(int i = 0; i < 8; i++){
+		printf("%s:\t0x%x\n", regsl[i],cpu.gpr[i]._32);
+	}
+}
 
+static int cmd_info(char *args) {
+	if (!args || ( *args != 'r' && *args != 'w' && *args != 's' && *args != 'c' && *args != 't')){
+		printf("info SUBCMD: no subcmd specified\n");
+		return 1;
+	}
+
+	switch(*args) {
+		case 'r':
+			print_registers();
+			break;
+		case 'w':
+			//TODO
+			break;
+		case 's':
+			//TODO
+			break;
+		case 'c':
+			//TODO
+			break;
+	}
 	return 0;
 }
 
@@ -60,6 +84,13 @@ static int cmd_p(char *args){
 		return 0;
 	}	
 
+	if (!args){
+		printf("p SUBCMD: no expresssions specified\n");
+		return 1;
+	}
+	printf("expression is %s\n", args);
+	bool success = true;
+	expr(args, &success);
 	return 0;
 }
 
@@ -73,8 +104,8 @@ static struct {
 	{ "q", "Exit NEMU", cmd_q },
 	{ "si", "Run single instruction", cmd_si },
 	{ "info", "Show information of [r]egister or [w]atchpoint or [s]ymbol or [c]ache or [t]lb", cmd_info},
-	{ "p", "print value of expression (',' to split multiple expressions)", cmd_p},
 
+	{ "p", "Print value of an expression(','to split multiple expressions", cmd_p },
 	/* TODO: Add more commands */
 
 };
