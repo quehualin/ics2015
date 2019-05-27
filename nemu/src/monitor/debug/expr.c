@@ -11,13 +11,6 @@ enum
 	NOTYPE = 256,
 	EQ,
 	NEQ,
-	ADD,
-	SUB,
-	MUL,
-	DIV,
-	MOD,
-	LP,
-	RP,
 
 	NUMBER,
 
@@ -28,20 +21,21 @@ static struct rule
 {
 	char *regex;
 	int token_type;
+	int priority;
 } rules[] = {
-	{" +", NOTYPE}, // spaces
-	{"==", EQ},		// equal
-	{"!=", EQ},		// equal
+	{" +", NOTYPE, -1}, // spaces
+	{"==", EQ, 7},		// equal
+	{"!=", NEQ, 7},		// not equal
 
-	{"\\+", ADD}, // add
-	{"-", SUB},   //sub
-	{"\\*", MUL}, //mul
-	{"/", DIV},   //div
-	{"%", MOD},   //mod
-	{"\\(", LP},  //lp
-	{"\\)", RP},  //rp
+	{"\\+", '+', 4}, // add
+	{"-", '-', 4},   //sub
+	{"\\*", '*', 3}, //mul
+	{"/", '/', 3},   //div
+	{"%", '%', 3},   //mod
+	{"\\(", '(', -1},  //lp
+	{"\\)", ')', -1},  //rp
 
-	{"[0-9]+", NUMBER} // number
+	{"[0-9]+", NUMBER, -1} // number
 };
 
 #define NR_REGEX (sizeof(rules) / sizeof(rules[0]))
@@ -70,8 +64,9 @@ void init_regex()
 
 typedef struct token
 {
-	int type;
+	int token_type;
 	char str[32];
+	int priority;
 } Token;
 
 Token tokens[32];
@@ -97,23 +92,19 @@ static bool make_token(char *e)
 
 				// Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s", i, rules[i].regex, position, substr_len, substr_len, substr_start);
 				position += substr_len;
-
-				/* TODO: Now a new token is recognized with rules[i]. Add codes
-				 * to record the token in the array ``tokens''. For certain 
-				 * types of tokens, some extra actions should be performed.
-				 */
 				int tt = rules[i].token_type;
 				switch (tt)
-				{
-				case NOTYPE:
-					break;
+					{
+						case NOTYPE:
+						break;
 
-				default:
-					tokens[nr_token].type = rules[i].token_type;
-					strncpy(tokens[nr_token].str, substr_start, substr_len);
-					tokens[nr_token].str[substr_len] = '\0';
-					nr_token++;
-					break;
+					default:
+						tokens[nr_token].token_type = rules[i].token_type;
+						tokens[nr_token].priority = rules[i].priority;
+						strncpy(tokens[nr_token].str, substr_start, substr_len);
+						tokens[nr_token].str[substr_len] = '\0';
+						nr_token++;
+						break;
 				}
 				break;
 			}
@@ -131,12 +122,12 @@ static bool make_token(char *e)
 
 static bool check_parentheses(int l, int r)
 {
-	if (tokens[l].str != '(' || tokens[r].str != ')') return false;
+	if (tokens[l].token_type != '(' || tokens[r].token_type != ')') return false;
 	int i, lc = 0, rc = 0;
 	for ( i = l + 1; i < r; i++)
 	{
-		if (token[i].type == '(') lc++;
-		if (token[i].type == ')') rc++;
+		if (tokens[i].token_type == '(') lc++;
+		if (tokens[i].token_type == ')') rc++;
 		if (rc > lc) return false;
 	}
 	if (lc == rc)
@@ -145,8 +136,18 @@ static bool check_parentheses(int l, int r)
 }
 
 int dominant_operator(int l, int r) {
-	int i,j;
-	
+	if (l > r) assert(0);
+	int op = l;
+	int max_priority = -1;
+	while (l < r)
+	{
+		int priority = tokens[l++].priority;
+		if (max_priority >= priority)
+		{
+			max_priority = priority;
+		}
+	}
+	return op;	
 }
 
 // <expr> ::= <number>        # 一个数是表达式
@@ -158,7 +159,6 @@ int dominant_operator(int l, int r) {
 //求值
 static uint32_t eval(int l, int r)
 {
-	uint32_t num = 0;
 	if (l > r)
 	{
 		Assert(true, "bad expression");
@@ -166,6 +166,7 @@ static uint32_t eval(int l, int r)
 	}
 	else if (l == r)
 	{
+		uint32_t num = 0;
 		sscanf(tokens[l].str, "%d", &num);
 		return num;
 	}
@@ -175,7 +176,8 @@ static uint32_t eval(int l, int r)
 	}
 	else
 	{
-
+		int op = dominant_operator(l, r);
+		printf('the op is %d\t%s ', op, tokens[op].str);
 	}
 }
 
@@ -192,7 +194,7 @@ uint32_t expr(char *e, bool *success)
 	for (size_t i = 0; i < nr_token; i++)
 	{
 		Token t = tokens[i];
-		printf("type : %d,\tvalue: %s\n", t.type, t.str);
+		printf("type : %d,\tvalue: %s\n", t.token_type, t.str);
 	}
 
 	return 0;
