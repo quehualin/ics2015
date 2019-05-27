@@ -32,8 +32,8 @@ static struct rule
 	{"\\*", '*', 3}, //mul
 	{"/", '/', 3},   //div
 	{"%", '%', 3},   //mod
-	{"\\(", '(', 100},  //lp
-	{"\\)", ')', 100},  //rp
+	{"\\(", '(', -1},  //lp
+	{"\\)", ')', -1},  //rp
 
 	{"[0-9]+", NUMBER, -1} // number
 };
@@ -139,8 +139,18 @@ int dominant_operator(int l, int r) {
 	if (l > r) assert(0);
 	int op = l;
 	int max_priority = -1;
+	bool isInP = false;
 	while (l < r)
 	{
+		if (isInP || tokens[l].token_type == '('){
+			isInP = true;
+			continue;
+		}
+		if (tokens[l].token_type == ')'){
+			isInP = false;
+			continue;
+		}
+
 		int priority = tokens[l].priority;
 		if (max_priority <= priority)
 		{
