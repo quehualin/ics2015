@@ -177,8 +177,9 @@ static uint32_t eval(int l, int r)
 	else
 	{
 		int op = dominant_operator(l, r);
-		printf('the op is %d\t%s ', op, tokens[op].str);
+		printf("the op is %d\t%s ", op, tokens[op].str);
 	}
+	return 0;
 }
 
 uint32_t expr(char *e, bool *success)
@@ -188,18 +189,13 @@ uint32_t expr(char *e, bool *success)
 		*success = false;
 		return 0;
 	}
-
 	printf("tokens: \n");
 
 	for (size_t i = 0; i < nr_token; i++)
 	{
 		Token t = tokens[i];
-<<<<<<< HEAD
-		printf("type : %d,\tvalue: %s\n", t.type, t.str);
-=======
 		printf("type : %d,\tvalue: %s\n", t.token_type, t.str);
->>>>>>> cc14aa81f939bd2aa7020f9b4c8be5a5ae6558c0
 	}
-
+	eval(0, nr_token);
 	return 0;
 }
