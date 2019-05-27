@@ -141,12 +141,13 @@ int dominant_operator(int l, int r) {
 	int max_priority = -1;
 	while (l < r)
 	{
-		int priority = tokens[l++].priority;
+		int priority = tokens[l].priority;
 		if (max_priority >= priority)
 		{
 			max_priority = priority;
 			op = l;
 		}
+		l++;
 	}
 	return op;	
 }
