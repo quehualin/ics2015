@@ -158,6 +158,11 @@ int dominant_operator(int l, int r) {
 		}
 		l++;
 	}
+	if (isIn)
+	{
+		return -1;
+	}
+	
 	return op;	
 }
 
@@ -188,6 +193,7 @@ static uint32_t eval(int l, int r)
 	else
 	{
 		int op = dominant_operator(l, r);
+		assert(op >= 0);
 		printf("the op is %d\t%s ", op, tokens[op].str);
 	}
 	return 0;
