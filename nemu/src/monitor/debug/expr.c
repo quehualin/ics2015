@@ -145,6 +145,7 @@ int dominant_operator(int l, int r) {
 		if(tokens[l].token_type == '(') isIn = true;
 		if(tokens[l].token_type == ')')		{
 			isIn = false;
+			l++;
 			continue;
 		}
 		if(!isIn) {
@@ -154,8 +155,8 @@ int dominant_operator(int l, int r) {
 				max_priority = priority;
 				op = l;
 			}
-			l++;
 		}
+		l++;
 	}
 	return op;	
 }
