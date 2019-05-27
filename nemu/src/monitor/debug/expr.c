@@ -145,6 +145,7 @@ int dominant_operator(int l, int r) {
 		if (max_priority <= priority)
 		{
 			max_priority = priority;
+			op = l;
 		}
 	}
 	return op;	
