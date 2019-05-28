@@ -12,8 +12,18 @@ enum
 	EQ,
 	NEQ,
 
+	ADD,
+	MINUS,
+	MUL,
+	DIV,
+	MOD,
+	LP,
+	RP,
+
+	HNUMBER,
 	NUMBER,
 
+	DEREF, //解引用
 	UNKNOWN_TOKEN
 };
 
@@ -27,15 +37,16 @@ static struct rule
 	{"==", EQ, 7},		// equal
 	{"!=", NEQ, 7},		// not equal
 
-	{"\\+", '+', 4}, // add
-	{"-", '-', 4},   //sub
-	{"\\*", '*', 3}, //mul
-	{"/", '/', 3},   //div
-	{"%", '%', 3},   //mod
-	{"\\(", '(', -1},  //lp
-	{"\\)", ')', -1},  //rp
+	{"\\+", ADD, 4}, // add
+	{"-", MINUS, 4}, //sub
+	{"\\*", MUL, 3}, //mul
+	{"/", DIV, 3},   //div
+	{"%", MOD, 3},   //mod
+	{"\\(", LP, -1}, //lp
+	{"\\)", RP, -1}, //rp
 
-	{"[0-9]+", NUMBER, -1} // number
+	{"\\b0[xX][0-9a-fA-F]+\\b", HNUMBER, -1}, // hexnumber
+	{"\\b[0-9]+\\b", NUMBER, -1},			  // number
 };
 
 #define NR_REGEX (sizeof(rules) / sizeof(rules[0]))
@@ -94,17 +105,17 @@ static bool make_token(char *e)
 				position += substr_len;
 				int tt = rules[i].token_type;
 				switch (tt)
-					{
-						case NOTYPE:
-						break;
+				{
+				case NOTYPE:
+					break;
 
-					default:
-						tokens[nr_token].token_type = rules[i].token_type;
-						tokens[nr_token].priority = rules[i].priority;
-						strncpy(tokens[nr_token].str, substr_start, substr_len);
-						tokens[nr_token].str[substr_len] = '\0';
-						nr_token++;
-						break;
+				default:
+					tokens[nr_token].token_type = rules[i].token_type;
+					tokens[nr_token].priority = rules[i].priority;
+					strncpy(tokens[nr_token].str, substr_start, substr_len);
+					tokens[nr_token].str[substr_len] = '\0';
+					nr_token++;
+					break;
 				}
 				break;
 			}
@@ -120,35 +131,47 @@ static bool make_token(char *e)
 	return true;
 }
 
-static bool check_parentheses(int l, int r)
+static bool check_parentheses(int l, int r, bool *success)
 {
-	if (tokens[l].token_type != '(' || tokens[r].token_type != ')') return false;
+	if (tokens[l].token_type != LP || tokens[r].token_type != RP)
+		return false;
+
 	int i, lc = 0, rc = 0;
-	for ( i = l + 1; i < r; i++)
+	for (i = l + 1; i < r; i++)
 	{
-		if (tokens[i].token_type == '(') lc++;
-		if (tokens[i].token_type == ')') rc++;
-		if (rc > lc) return false;
+		if (tokens[i].token_type == LP)
+			lc++;
+		if (tokens[i].token_type == RP)
+			rc++;
+		if (rc > lc)
+		{
+			return false;
+		}
 	}
 	if (lc == rc)
 		return true;
-	return false;			
+	return false;
 }
 
-int dominant_operator(int l, int r) {
-	if (l > r) assert(0);
+int dominant_operator(int l, int r, bool *success)
+{
+	if (l > r)
+		assert(0);
 	int op = l;
 	int max_priority = -1;
 	bool isIn = false;
-	while (l < r)
+	while (l <= r)
 	{
-		if(tokens[l].token_type == '(') isIn = true;
-		if(tokens[l].token_type == ')')		{
+		if (tokens[l].token_type == LP)
+			isIn = true;
+		if (tokens[l].token_type == RP)
+		{
 			isIn = false;
 			l++;
 			continue;
 		}
-		if(!isIn) {
+		if (!isIn)
+		{
 			int priority = tokens[l].priority;
 			if (priority >= max_priority)
 			{
@@ -158,12 +181,13 @@ int dominant_operator(int l, int r) {
 		}
 		l++;
 	}
-	if (isIn)
+	if (isIn || op >= r)
 	{
+		*success = false;
 		return -1;
 	}
-	
-	return op;	
+
+	return op;
 }
 
 // <expr> ::= <number>        # 一个数是表达式
@@ -173,28 +197,74 @@ int dominant_operator(int l, int r) {
 //     | <expr> "*" <expr>
 //     | <expr> "/" <expr>
 //求值
-static uint32_t eval(int l, int r)
+static uint32_t eval(int l, int r, bool *success)
 {
 	if (l > r)
 	{
-		Assert(true, "bad expression");
-		/* bad expression */
+		printf("bad expression\n");
+		*success = false;
+		return 0;
 	}
 	else if (l == r)
 	{
 		uint32_t num = 0;
-		sscanf(tokens[l].str, "%d", &num);
+		switch (tokens[l].token_type)
+		{
+		case NUMBER:
+			sscanf(tokens[l].str, "%d", &num);
+			break;
+		case HNUMBER:
+			sscanf(tokens[l].str, "%x", &num);
+			break;
+		default:
+			break;
+		}
 		return num;
 	}
-	else if (check_parentheses(l, r))
+	else if (check_parentheses(l, r, success))
 	{
-		return eval(l + 1, r - 1);
+		return eval(l + 1, r - 1, success);
 	}
 	else
 	{
-		int op = dominant_operator(l, r);
-		assert(op >= 0);
-		printf("the op is %d\t%s ", op, tokens[op].str);
+		int op = dominant_operator(l, r, success);
+		if( !*success) {
+			printf("bad expression\n");
+			return 0;
+		}
+		int va2 = eval(op + 1, r, success);
+		if( !*success) {
+			printf("bad expression\n");
+			return 0;
+		}
+		if(op == l){
+			switch(tokens[l].token_type){
+				case MINUS:
+					return -va2;
+				case ADD:
+					return va2;
+			}	
+		}
+		int va1 = eval(l, op - 1, success);
+		if( !*success) {
+			printf("bad expression\n");
+			return 0;
+		}
+		switch (tokens[op].token_type)
+		{
+		case ADD:
+			return va1 + va2;
+		case MINUS:
+			return va1 - va2;
+		case MUL:
+			return va1 * va2;
+		case DIV:
+			return va1 / va2;
+		case MOD:
+			return va1 % va2;
+		default:
+			break;
+		}
 	}
 	return 0;
 }
@@ -206,13 +276,6 @@ uint32_t expr(char *e, bool *success)
 		*success = false;
 		return 0;
 	}
-	printf("tokens: \n");
 
-	for (size_t i = 0; i < nr_token; i++)
-	{
-		Token t = tokens[i];
-		printf("type : %d,\tvalue: %s\n", t.token_type, t.str);
-	}
-	eval(0, nr_token);
-	return 0;
+	return eval(0, nr_token - 1, success);
 }
