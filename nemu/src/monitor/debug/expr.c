@@ -204,6 +204,7 @@ static uint32_t eval(int l, int r)
 		default:
 			break;
 		}
+		printf("num %d\n", num);
 		return num;
 	}
 	else if (check_parentheses(l, r))
