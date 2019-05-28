@@ -12,6 +12,14 @@ enum
 	EQ,
 	NEQ,
 
+	ADD,
+	SUB,
+	MUL,
+	DIV,
+	MOD,
+	LP,
+	RP,
+
 	HNUMBER,
 	NUMBER,
 
@@ -28,16 +36,16 @@ static struct rule
 	{"==", EQ, 7},		// equal
 	{"!=", NEQ, 7},		// not equal
 
-	{"\\+", '+', 4}, // add
-	{"-", '-', 4},   //sub
-	{"\\*", '*', 3}, //mul
-	{"/", '/', 3},   //div
-	{"%", '%', 3},   //mod
-	{"\\(", '(', -1},  //lp
-	{"\\)", ')', -1},  //rp
+	{"\\+", ADD, 4}, // add
+	{"-", SUB, 4},   //sub
+	{"\\*", MUL, 3}, //mul
+	{"/", DIV, 3},   //div
+	{"%", MOD, 3},   //mod
+	{"\\(", LP, -1},  //lp
+	{"\\)", RP, -1},  //rp
 
-	{"\b0[xX][0-9a-fA-F]\b+", HNUMBER, -1} // number
-	{"\b[0-9]\b+", NUMBER, -1} // number
+	{"\b0[xX][0-9a-fA-F]\b+", HNUMBER, -1}, // hexnumber
+	{"\b[0-9]\b+", NUMBER, -1}, // number
 };
 
 #define NR_REGEX (sizeof(rules) / sizeof(rules[0]))
@@ -124,12 +132,12 @@ static bool make_token(char *e)
 
 static bool check_parentheses(int l, int r)
 {
-	if (tokens[l].token_type != '(' || tokens[r].token_type != ')') return false;
+	if (tokens[l].token_type != LP || tokens[r].token_type != RP) return false;
 	int i, lc = 0, rc = 0;
 	for ( i = l + 1; i < r; i++)
 	{
-		if (tokens[i].token_type == '(') lc++;
-		if (tokens[i].token_type == ')') rc++;
+		if (tokens[i].token_type == LP) lc++;
+		if (tokens[i].token_type == RP) rc++;
 		if (rc > lc) return false;
 	}
 	if (lc == rc)
@@ -144,8 +152,8 @@ int dominant_operator(int l, int r) {
 	bool isIn = false;
 	while (l < r)
 	{
-		if(tokens[l].token_type == '(') isIn = true;
-		if(tokens[l].token_type == ')')		{
+		if(tokens[l].token_type == LP) isIn = true;
+		if(tokens[l].token_type == RP)		{
 			isIn = false;
 			l++;
 			continue;
@@ -209,18 +217,18 @@ static uint32_t eval(int l, int r)
 		printf("the op is %d\t%s\n ", op, tokens[op].str);
 		int va1 = eval(l, op-1);
 		int va2 = eval(op + 1, r);
-		switch (tokens[op].str)
+		switch (tokens[op].token_type)
 		{
-		case '+':
+		case ADD:
 			return va1 + va2;
 		
-		case '-':
+		case SUB:
 			return va1 - va2;
-		case '*':
+		case MUL:
 			return va1 * va2;
-		case '/':
+		case DIV:
 			return va1 / va2;
-		case '%':
+		case MOD:
 			return va1 % va2;
 		default:
 			break;
