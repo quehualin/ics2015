@@ -12,6 +12,7 @@ enum
 	EQ,
 	NEQ,
 
+	HNUMBER,
 	NUMBER,
 
 	UNKNOWN_TOKEN
@@ -35,7 +36,8 @@ static struct rule
 	{"\\(", '(', -1},  //lp
 	{"\\)", ')', -1},  //rp
 
-	{"[0-9]+", NUMBER, -1} // number
+	{"\b0[xX][0-9a-fA-F]\b+", HNUMBER, -1} // number
+	{"\b[0-9]\b+", NUMBER, -1} // number
 };
 
 #define NR_REGEX (sizeof(rules) / sizeof(rules[0]))
@@ -183,7 +185,17 @@ static uint32_t eval(int l, int r)
 	else if (l == r)
 	{
 		uint32_t num = 0;
-		sscanf(tokens[l].str, "%d", &num);
+		switch (tokens[l].token_type)
+		{
+		case NUMBER:
+			sscanf(tokens[l].str, "%d", &num);
+			break;
+		case HNUMBER:
+			sscanf(tokens[l].str, "%x", &num);
+			break;
+		default:
+			break;
+		}
 		return num;
 	}
 	else if (check_parentheses(l, r))
@@ -194,7 +206,25 @@ static uint32_t eval(int l, int r)
 	{
 		int op = dominant_operator(l, r);
 		assert(op >= 0);
-		printf("the op is %d\t%s ", op, tokens[op].str);
+		printf("the op is %d\t%s\n ", op, tokens[op].str);
+		int va1 = eval(l, op-1);
+		int va2 = eval(op + 1, r);
+		switch (tokens[op].str)
+		{
+		case '+':
+			return va1 + va2;
+		
+		case '-':
+			return va1 - va2;
+		case '*':
+			return va1 * va2;
+		case '/':
+			return va1 / va2;
+		case '%':
+			return va1 % va2;
+		default:
+			break;
+		}
 	}
 	return 0;
 }
@@ -208,11 +238,6 @@ uint32_t expr(char *e, bool *success)
 	}
 	printf("tokens: \n");
 
-	for (size_t i = 0; i < nr_token; i++)
-	{
-		Token t = tokens[i];
-		printf("type : %d,\tvalue: %s\n", t.token_type, t.str);
-	}
 	eval(0, nr_token);
 	return 0;
 }
