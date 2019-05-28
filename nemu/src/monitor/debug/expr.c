@@ -214,9 +214,9 @@ static uint32_t eval(int l, int r)
 	{
 		int op = dominant_operator(l, r);
 		assert(op >= 0);
-		printf("the op is %d\t%s\n ", op, tokens[op].str);
 		int va1 = eval(l, op-1);
 		int va2 = eval(op + 1, r);
+		printf("val ,va2, %d,%d\n", va1, va2);
 		switch (tokens[op].token_type)
 		{
 		case ADD:
