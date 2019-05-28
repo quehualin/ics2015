@@ -223,14 +223,14 @@ static uint32_t eval(int l, int r, bool *success)
 	}
 	else if (check_parentheses(l, r, success))
 	{
-		return eval(l + 1, r - 1);
+		return eval(l + 1, r - 1, success);
 	}
 	else
 	{
 		int op = dominant_operator(l, r);
 		assert(op >= 0);
-		int va1 = eval(l, op - 1);
-		int va2 = eval(op + 1, r);
+		int va1 = eval(l, op - 1, success);
+		int va2 = eval(op + 1, r, success);
 		switch (tokens[op].token_type)
 		{
 		case ADD:
