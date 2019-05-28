@@ -45,7 +45,7 @@ static struct rule
 	{"\\)", RP, -1},  //rp
 
 	{"\b0[xX][0-9a-fA-F]\b+", HNUMBER, -1}, // hexnumber
-	{"\b[0-9]+\b", NUMBER, -1}, // number
+	{"\b[0-9]+", NUMBER, -1}, // number
 };
 
 #define NR_REGEX (sizeof(rules) / sizeof(rules[0]))
