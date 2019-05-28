@@ -181,7 +181,7 @@ int dominant_operator(int l, int r, bool *success)
 		}
 		l++;
 	}
-	if (isIn)
+	if (isIn || op >= r)
 	{
 		*success = false;
 		return -1;
@@ -232,12 +232,20 @@ static uint32_t eval(int l, int r, bool *success)
 			printf("bad expression\n");
 			return 0;
 		}
-		int va1 = eval(l, op - 1, success);
+		int va2 = eval(op + 1, r, success);
 		if( !*success) {
 			printf("bad expression\n");
 			return 0;
 		}
-		int va2 = eval(op + 1, r, success);
+		if(op == l){
+			switch(tokens[l].token_type){
+				case MINUS:
+					return -va2;
+				case ADD:
+					return va2;
+			}	
+		}
+		int va1 = eval(l, op - 1, success);
 		if( !*success) {
 			printf("bad expression\n");
 			return 0;
