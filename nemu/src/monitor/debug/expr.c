@@ -153,7 +153,7 @@ static bool check_parentheses(int l, int r, bool *success)
 	return false;
 }
 
-int dominant_operator(int l, int r)
+int dominant_operator(int l, int r, bool *success)
 {
 	if (l > r)
 		assert(0);
@@ -183,6 +183,7 @@ int dominant_operator(int l, int r)
 	}
 	if (isIn)
 	{
+		*success = false;
 		return -1;
 	}
 
@@ -226,7 +227,7 @@ static uint32_t eval(int l, int r, bool *success)
 	}
 	else
 	{
-		int op = dominant_operator(l, r);
+		int op = dominant_operator(l, r, success);
 		assert(op >= 0);
 		int va1 = eval(l, op - 1, success);
 		int va2 = eval(op + 1, r, success);
