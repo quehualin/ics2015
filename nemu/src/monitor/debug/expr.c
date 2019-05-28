@@ -160,7 +160,7 @@ int dominant_operator(int l, int r)
 	int op = l;
 	int max_priority = -1;
 	bool isIn = false;
-	while (l < r)
+	while (l <= r)
 	{
 		if (tokens[l].token_type == LP)
 			isIn = true;
@@ -235,7 +235,6 @@ static uint32_t eval(int l, int r, bool *success)
 		{
 		case ADD:
 			return va1 + va2;
-
 		case MINUS:
 			return va1 - va2;
 		case MUL:
