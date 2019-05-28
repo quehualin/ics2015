@@ -226,11 +226,13 @@ static uint32_t eval(int l, int r, bool *success)
 	}
 	else
 	{
-		printf("xxx %d, %d\n", l, r);
 		int op = dominant_operator(l, r);
 		assert(op >= 0);
 		int va1 = eval(l, op - 1, success);
 		int va2 = eval(op + 1, r, success);
+		if( !*success) {
+			return 0;
+		}
 		switch (tokens[op].token_type)
 		{
 		case ADD:
