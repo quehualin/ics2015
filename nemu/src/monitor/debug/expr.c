@@ -226,6 +226,7 @@ static uint32_t eval(int l, int r, bool *success)
 	}
 	else
 	{
+		printf("xxx %d, %d\n", l, r);
 		int op = dominant_operator(l, r);
 		assert(op >= 0);
 		int va1 = eval(l, op - 1, success);
