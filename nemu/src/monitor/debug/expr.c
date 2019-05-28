@@ -204,7 +204,6 @@ static uint32_t eval(int l, int r)
 		default:
 			break;
 		}
-		printf("num %d ,%d\n", num, l);
 		return num;
 	}
 	else if (check_parentheses(l, r))
@@ -217,7 +216,7 @@ static uint32_t eval(int l, int r)
 		assert(op >= 0);
 		int va1 = eval(l, op-1);
 		int va2 = eval(op + 1, r);
-		printf("val ,va2, op %d,%d, %d\n", va1, va2, op);
+		printf("p %d\n", op);
 		switch (tokens[op].token_type)
 		{
 		case ADD:
@@ -245,7 +244,6 @@ uint32_t expr(char *e, bool *success)
 		*success = false;
 		return 0;
 	}
-	printf("tokens: \n");
 
 	printf("the value is %d\n", eval(0, nr_token));
 	return 0;
