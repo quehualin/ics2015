@@ -127,7 +127,6 @@ static bool make_token(char *e)
 		}
 	}
 
-	printf("nr_token : %d\n", nr_token);
 	return true;
 }
 
@@ -161,7 +160,6 @@ int dominant_operator(int l, int r) {
 		}
 		if(!isIn) {
 			int priority = tokens[l].priority;
-			printf("priority %d, %d\n", priority, l);
 			if (priority >= max_priority)
 			{
 				max_priority = priority;
@@ -218,7 +216,6 @@ static uint32_t eval(int l, int r)
 		assert(op >= 0);
 		int va1 = eval(l, op-1);
 		int va2 = eval(op + 1, r);
-		printf("p %d\n", op);
 		switch (tokens[op].token_type)
 		{
 		case ADD:
@@ -247,6 +244,5 @@ uint32_t expr(char *e, bool *success)
 		return 0;
 	}
 
-	printf("the value is %d\n", eval(0, nr_token - 1));
-	return 0;
+	return eval(0, nr_token - 1);
 }

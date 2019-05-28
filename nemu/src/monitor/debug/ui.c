@@ -80,9 +80,8 @@ static int cmd_p(char *args){
 		printf("p SUBCMD: no expresssions specified\n");
 		return 1;
 	}
-	printf("expression is %s\n", args);
 	bool success = true;
-	expr(args, &success);
+	printf("%d\n", expr(args, &success));
 	return 0;
 }
 
