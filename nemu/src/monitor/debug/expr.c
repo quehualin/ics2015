@@ -228,8 +228,13 @@ static uint32_t eval(int l, int r, bool *success)
 	else
 	{
 		int op = dominant_operator(l, r, success);
-		assert(op >= 0);
+		if( !*success) {
+			return 0;
+		}
 		int va1 = eval(l, op - 1, success);
+		if( !*success) {
+			return 0;
+		}
 		int va2 = eval(op + 1, r, success);
 		if( !*success) {
 			return 0;
