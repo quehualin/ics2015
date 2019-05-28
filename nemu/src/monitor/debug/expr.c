@@ -160,6 +160,7 @@ int dominant_operator(int l, int r) {
 		}
 		if(!isIn) {
 			int priority = tokens[l].priority;
+			printf("priority %d, %d", priority, l);
 			if (priority >= max_priority)
 			{
 				max_priority = priority;
