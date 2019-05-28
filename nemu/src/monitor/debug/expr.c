@@ -137,7 +137,7 @@ static bool check_parentheses(int l, int r, bool *success)
 		return false;
 
 	int i, lc = 0, rc = 0;
-	for (i = l; i <= r; i++)
+	for (i = l + 1; i < r; i++)
 	{
 		if (tokens[i].token_type == LP)
 			lc++;
@@ -145,7 +145,6 @@ static bool check_parentheses(int l, int r, bool *success)
 			rc++;
 		if (rc > lc)
 		{
-			*success = false;
 			return false;
 		}
 	}
