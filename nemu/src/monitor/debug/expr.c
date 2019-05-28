@@ -13,7 +13,7 @@ enum
 	NEQ,
 
 	ADD,
-	SUB,
+	MINUS,
 	MUL,
 	DIV,
 	MOD,
@@ -23,6 +23,7 @@ enum
 	HNUMBER,
 	NUMBER,
 
+	DEREF, //解引用
 	UNKNOWN_TOKEN
 };
 
@@ -37,15 +38,15 @@ static struct rule
 	{"!=", NEQ, 7},		// not equal
 
 	{"\\+", ADD, 4}, // add
-	{"-", SUB, 4},   //sub
+	{"-", MINUS, 4}, //sub
 	{"\\*", MUL, 3}, //mul
 	{"/", DIV, 3},   //div
 	{"%", MOD, 3},   //mod
-	{"\\(", LP, -1},  //lp
-	{"\\)", RP, -1},  //rp
+	{"\\(", LP, -1}, //lp
+	{"\\)", RP, -1}, //rp
 
-	{"\b0[xX][0-9a-fA-F]\b+", HNUMBER, -1}, // hexnumber
-	{"\\b[0-9]+\\b", NUMBER, -1}, // number
+	{"\\b0[xX][0-9a-fA-F]\\b+", HNUMBER, -1}, // hexnumber
+	{"\\b[0-9]+\\b", NUMBER, -1},			  // number
 };
 
 #define NR_REGEX (sizeof(rules) / sizeof(rules[0]))
@@ -104,17 +105,17 @@ static bool make_token(char *e)
 				position += substr_len;
 				int tt = rules[i].token_type;
 				switch (tt)
-					{
-						case NOTYPE:
-						break;
+				{
+				case NOTYPE:
+					break;
 
-					default:
-						tokens[nr_token].token_type = rules[i].token_type;
-						tokens[nr_token].priority = rules[i].priority;
-						strncpy(tokens[nr_token].str, substr_start, substr_len);
-						tokens[nr_token].str[substr_len] = '\0';
-						nr_token++;
-						break;
+				default:
+					tokens[nr_token].token_type = rules[i].token_type;
+					tokens[nr_token].priority = rules[i].priority;
+					strncpy(tokens[nr_token].str, substr_start, substr_len);
+					tokens[nr_token].str[substr_len] = '\0';
+					nr_token++;
+					break;
 				}
 				break;
 			}
@@ -130,35 +131,48 @@ static bool make_token(char *e)
 	return true;
 }
 
-static bool check_parentheses(int l, int r)
+static bool check_parentheses(int l, int r, bool *success)
 {
-	if (tokens[l].token_type != LP || tokens[r].token_type != RP) return false;
+	if (tokens[l].token_type != LP || tokens[r].token_type != RP)
+		return false;
+
 	int i, lc = 0, rc = 0;
-	for ( i = l + 1; i < r; i++)
+	for (i = l; i <= r; i++)
 	{
-		if (tokens[i].token_type == LP) lc++;
-		if (tokens[i].token_type == RP) rc++;
-		if (rc > lc) return false;
+		if (tokens[i].token_type == LP)
+			lc++;
+		if (tokens[i].token_type == RP)
+			rc++;
+		if (rc > lc)
+		{
+			*success = false;
+			return false;
+		}
 	}
 	if (lc == rc)
 		return true;
-	return false;			
+	return false;
 }
 
-int dominant_operator(int l, int r) {
-	if (l > r) assert(0);
+int dominant_operator(int l, int r)
+{
+	if (l > r)
+		assert(0);
 	int op = l;
 	int max_priority = -1;
 	bool isIn = false;
 	while (l < r)
 	{
-		if(tokens[l].token_type == LP) isIn = true;
-		if(tokens[l].token_type == RP)		{
+		if (tokens[l].token_type == LP)
+			isIn = true;
+		if (tokens[l].token_type == RP)
+		{
 			isIn = false;
 			l++;
 			continue;
 		}
-		if(!isIn) {
+		if (!isIn)
+		{
 			int priority = tokens[l].priority;
 			if (priority >= max_priority)
 			{
@@ -172,8 +186,8 @@ int dominant_operator(int l, int r) {
 	{
 		return -1;
 	}
-	
-	return op;	
+
+	return op;
 }
 
 // <expr> ::= <number>        # 一个数是表达式
@@ -183,12 +197,13 @@ int dominant_operator(int l, int r) {
 //     | <expr> "*" <expr>
 //     | <expr> "/" <expr>
 //求值
-static uint32_t eval(int l, int r)
+static uint32_t eval(int l, int r, bool *success)
 {
 	if (l > r)
 	{
-		Assert(true, "bad expression");
-		/* bad expression */
+		printf("bad expression\n");
+		*success = false;
+		return 0;
 	}
 	else if (l == r)
 	{
@@ -206,7 +221,7 @@ static uint32_t eval(int l, int r)
 		}
 		return num;
 	}
-	else if (check_parentheses(l, r))
+	else if (check_parentheses(l, r, success))
 	{
 		return eval(l + 1, r - 1);
 	}
@@ -214,14 +229,14 @@ static uint32_t eval(int l, int r)
 	{
 		int op = dominant_operator(l, r);
 		assert(op >= 0);
-		int va1 = eval(l, op-1);
+		int va1 = eval(l, op - 1);
 		int va2 = eval(op + 1, r);
 		switch (tokens[op].token_type)
 		{
 		case ADD:
 			return va1 + va2;
-		
-		case SUB:
+
+		case MINUS:
 			return va1 - va2;
 		case MUL:
 			return va1 * va2;
@@ -244,5 +259,5 @@ uint32_t expr(char *e, bool *success)
 		return 0;
 	}
 
-	return eval(0, nr_token - 1);
+	return eval(0, nr_token - 1, success);
 }
