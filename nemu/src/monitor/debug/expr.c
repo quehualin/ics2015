@@ -45,7 +45,7 @@ static struct rule
 	{"\\(", LP, -1}, //lp
 	{"\\)", RP, -1}, //rp
 
-	{"\\b0[xX][0-9a-fA-F]\\b+", HNUMBER, -1}, // hexnumber
+	{"\\b0[xX][0-9a-fA-F]+\\b", HNUMBER, -1}, // hexnumber
 	{"\\b[0-9]+\\b", NUMBER, -1},			  // number
 };
 
