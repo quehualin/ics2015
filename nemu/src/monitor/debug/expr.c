@@ -229,14 +229,17 @@ static uint32_t eval(int l, int r, bool *success)
 	{
 		int op = dominant_operator(l, r, success);
 		if( !*success) {
+			printf("bad expression\n");
 			return 0;
 		}
 		int va1 = eval(l, op - 1, success);
 		if( !*success) {
+			printf("bad expression\n");
 			return 0;
 		}
 		int va2 = eval(op + 1, r, success);
 		if( !*success) {
+			printf("bad expression\n");
 			return 0;
 		}
 		switch (tokens[op].token_type)
