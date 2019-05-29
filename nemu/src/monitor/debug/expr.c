@@ -12,8 +12,14 @@ enum
 	EQ,
 	NEQ,
 
+	AND,
+	OR,
+	NOT,
+	DEREF, //解引用
+	MINUS, //负数
+
 	ADD,
-	MINUS,
+	SUB,
 	MUL,
 	DIV,
 	MOD,
@@ -22,8 +28,9 @@ enum
 
 	HNUMBER,
 	NUMBER,
+	REGISTER,
+	MARK,	
 
-	DEREF, //解引用
 	UNKNOWN_TOKEN
 };
 
@@ -37,8 +44,14 @@ static struct rule
 	{"==", EQ, 7},		// equal
 	{"!=", NEQ, 7},		// not equal
 
+	{"&&", AND, 4}, // and
+	{"||", OR, 4}, // or
+	{"!", NOT, 4}, // not
+	{"\\b$[a-zA-z]+", REGISTER, -1}, // register
+	{"\\b[a-zA-z]+", MARK, -1}, // mark
+
 	{"\\+", ADD, 4}, // add
-	{"-", MINUS, 4}, //sub
+	{"-", SUB, 4}, //sub
 	{"\\*", MUL, 3}, //mul
 	{"/", DIV, 3},   //div
 	{"%", MOD, 3},   //mod
@@ -216,6 +229,10 @@ static uint32_t eval(int l, int r, bool *success)
 		case HNUMBER:
 			sscanf(tokens[l].str, "%x", &num);
 			break;
+		case REGISTER:
+			sscanf(tokens[l].str, "%x", &num);
+
+			break;
 		default:
 			break;
 		}
@@ -237,14 +254,7 @@ static uint32_t eval(int l, int r, bool *success)
 			printf("bad expression\n");
 			return 0;
 		}
-		if(op == l){
-			switch(tokens[l].token_type){
-				case MINUS:
-					return -va2;
-				case ADD:
-					return va2;
-			}	
-		}
+		
 		int va1 = eval(l, op - 1, success);
 		if( !*success) {
 			printf("bad expression\n");
@@ -254,7 +264,7 @@ static uint32_t eval(int l, int r, bool *success)
 		{
 		case ADD:
 			return va1 + va2;
-		case MINUS:
+		case SUB:
 			return va1 - va2;
 		case MUL:
 			return va1 * va2;
@@ -276,6 +286,19 @@ uint32_t expr(char *e, bool *success)
 		*success = false;
 		return 0;
 	}
-
+	// * - 
+	for (size_t i = 0; i < nr_token; i++)
+	{
+		if (tokens[i].token_type == MUL && (i == 0 || tokens[i - 1].token_type != NUMBER || tokens[i - 1].token_type != HNUMBER || tokens[i - 1].token_type != REGISTER))
+		{
+			tokens[i].token_type = DEREF;
+		}
+		
+		if (tokens[i].token_type == SUB && (i == 0 || tokens[i - 1].token_type != NUMBER || tokens[i - 1].token_type != HNUMBER || tokens[i - 1].token_type != REGISTER))
+		{
+			tokens[i].token_type = MINUS;
+		}
+	}
+	
 	return eval(0, nr_token - 1, success);
 }
