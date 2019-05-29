@@ -121,7 +121,13 @@ static bool make_token(char *e)
 				{
 				case NOTYPE:
 					break;
-
+				case REGISTER:
+					tokens[nr_token].token_type = rules[i].token_type;
+					tokens[nr_token].priority = rules[i].priority;
+					strncpy(tokens[nr_token].str, substr_start + 1, substr_len - 1);
+					tokens[nr_token].str[substr_len] = '\0';
+					nr_token++;
+					break;
 				default:
 					tokens[nr_token].token_type = rules[i].token_type;
 					tokens[nr_token].priority = rules[i].priority;
@@ -230,8 +236,16 @@ static uint32_t eval(int l, int r, bool *success)
 			sscanf(tokens[l].str, "%x", &num);
 			break;
 		case REGISTER:
-			sscanf(tokens[l].str, "%x", &num);
-
+			//read register
+			switch (tokens[l].str)
+			{
+				case :
+					/* code */
+					break;
+			
+				default:
+					break;
+			}
 			break;
 		default:
 			break;
@@ -244,17 +258,16 @@ static uint32_t eval(int l, int r, bool *success)
 	}
 	else
 	{
-		int op = dominant_operator(l, r, success);
-		if( !*success) {
-			printf("bad expression\n");
-			return 0;
-		}
-		int va2 = eval(op + 1, r, success);
-		if( !*success) {
-			printf("bad expression\n");
-			return 0;
+		if (tokens[l].token_type == MINUS) {
+			return -eval(l + 1, r);
 		}
 		
+		if (tokens[l].token_type == DEREF) {
+			return swaddr_read(eval(l + 1, r), 4)
+		}
+
+		int op = dominant_operator(l, r, success);
+		int va2 = eval(op + 1, r, success);
 		int va1 = eval(l, op - 1, success);
 		if( !*success) {
 			printf("bad expression\n");
@@ -278,7 +291,7 @@ static uint32_t eval(int l, int r, bool *success)
 	}
 	return 0;
 }
-// make_tokenxx
+// make_token
 uint32_t expr(char *e, bool *success)
 {
 	if (!make_token(e))
@@ -292,11 +305,13 @@ uint32_t expr(char *e, bool *success)
 		if (tokens[i].token_type == MUL && (i == 0 || tokens[i - 1].token_type != NUMBER || tokens[i - 1].token_type != HNUMBER || tokens[i - 1].token_type != REGISTER))
 		{
 			tokens[i].token_type = DEREF;
+			tokens[i].priority = -1;
 		}
 		
 		if (tokens[i].token_type == SUB && (i == 0 || tokens[i - 1].token_type != NUMBER || tokens[i - 1].token_type != HNUMBER || tokens[i - 1].token_type != REGISTER))
 		{
 			tokens[i].token_type = MINUS;
+			tokens[i].priority = -1;
 		}
 	}
 	
