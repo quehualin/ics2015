@@ -237,15 +237,15 @@ static uint32_t eval(int l, int r, bool *success)
 			break;
 		case REGISTER:
 			//read register
-			switch (tokens[l].str)
-			{
-				case :
+			//switch (tokens[l].str)
+			//{
+			//	case :
 					/* code */
-					break;
-			
-				default:
-					break;
-			}
+			//		break;
+		//	
+		//		default:
+		//			break;
+		//	}
 			break;
 		default:
 			break;
@@ -259,11 +259,11 @@ static uint32_t eval(int l, int r, bool *success)
 	else
 	{
 		if (tokens[l].token_type == MINUS) {
-			return -eval(l + 1, r);
+			return -eval(l + 1, r, success);
 		}
 		
 		if (tokens[l].token_type == DEREF) {
-			return swaddr_read(eval(l + 1, r), 4)
+			return swaddr_read(eval(l + 1, r, success), 4);
 		}
 
 		int op = dominant_operator(l, r, success);
