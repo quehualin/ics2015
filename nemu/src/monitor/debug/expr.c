@@ -277,6 +277,7 @@ static uint32_t eval(int l, int r, bool *success)
 		switch (tokens[op].token_type)
 		{
 		case ADD:
+			printf('add %d, %d', va1, va2);
 			return va1 + va2;
 		case SUB:
 			return va1 - va2;
