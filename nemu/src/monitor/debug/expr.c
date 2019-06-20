@@ -29,7 +29,7 @@ enum
 	HNUMBER,
 	NUMBER,
 	REGISTER,
-	MARK,	
+	MARK,
 
 	UNKNOWN_TOKEN
 };
@@ -44,14 +44,14 @@ static struct rule
 	{"==", EQ, 7},		// equal
 	{"!=", NEQ, 7},		// not equal
 
-	{"&&", AND, 4}, // and
-	{"||", OR, 4}, // or
-	{"!", NOT, 4}, // not
+	{"&&", AND, 4},					 // and
+	{"||", OR, 4},					 // or
+	{"!", NOT, 4},					 // not
 	{"\\b$[a-zA-z]+", REGISTER, -1}, // register
-	{"\\b[a-zA-z]+", MARK, -1}, // mark
+	{"\\b[a-zA-z]+", MARK, -1},		 // mark
 
 	{"\\+", ADD, 4}, // add
-	{"-", SUB, 4}, //sub
+	{"-", SUB, 4},   //sub
 	{"\\*", MUL, 3}, //mul
 	{"/", DIV, 3},   //div
 	{"%", MOD, 3},   //mod
@@ -239,15 +239,13 @@ static uint32_t eval(int l, int r, bool *success)
 			//read register
 			//switch (tokens[l].str)
 			//{
-			//	case :
-					/* code */
-			//		break;
-		//	
-		//		default:
-		//			break;
+			//case:
+			//	/* code */
+			//	break;
+
+			//default:
+			//	break;
 		//	}
-			break;
-		default:
 			break;
 		}
 		return num;
@@ -262,14 +260,17 @@ static uint32_t eval(int l, int r, bool *success)
 			return -eval(l + 1, r, success);
 		}
 		
-		if (tokens[l].token_type == DEREF) {
-			return swaddr_read(eval(l + 1, r, success), 4);
+		if (tokens[l].token_type == MINUS)
+		{
+			return -eval(l + 1, r, success);
 		}
+
 
 		int op = dominant_operator(l, r, success);
 		int va2 = eval(op + 1, r, success);
 		int va1 = eval(l, op - 1, success);
-		if( !*success) {
+		if (!*success)
+		{
 			printf("bad expression\n");
 			return 0;
 		}
@@ -291,7 +292,7 @@ static uint32_t eval(int l, int r, bool *success)
 	}
 	return 0;
 }
-// make_token
+
 uint32_t expr(char *e, bool *success)
 {
 	if (!make_token(e))
@@ -299,7 +300,7 @@ uint32_t expr(char *e, bool *success)
 		*success = false;
 		return 0;
 	}
-	// * - 
+	// * -
 	for (size_t i = 0; i < nr_token; i++)
 	{
 		if (tokens[i].token_type == MUL && (i == 0 || tokens[i - 1].token_type != NUMBER || tokens[i - 1].token_type != HNUMBER || tokens[i - 1].token_type != REGISTER))
@@ -307,13 +308,13 @@ uint32_t expr(char *e, bool *success)
 			tokens[i].token_type = DEREF;
 			tokens[i].priority = -1;
 		}
-		
+
 		if (tokens[i].token_type == SUB && (i == 0 || tokens[i - 1].token_type != NUMBER || tokens[i - 1].token_type != HNUMBER || tokens[i - 1].token_type != REGISTER))
 		{
 			tokens[i].token_type = MINUS;
 			tokens[i].priority = -1;
 		}
 	}
-	
+
 	return eval(0, nr_token - 1, success);
 }
